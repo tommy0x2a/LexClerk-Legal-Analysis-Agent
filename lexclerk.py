@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-LexClerk v1.1 — Legal Analysis Agent (Digital Clerk Phase)
-Fully integrated with your llm_router.py (Grok / Gemini / Local)
+LexClerk v1.2+ — Legal Analysis Agent with Switchable Research
+Fully integrated with llm_router + Perplexica / Grok research
 """
 
 import os
@@ -18,11 +18,12 @@ from rapidfuzz import fuzz
 import pymupdf
 from docx import Document
 
-# NEW: Your LLM router
+# NEW: LLM router + Research engine
 from llm_router import get_llm
+from research_engine import ResearchEngine
 
 class LexClerk:
-    def __init__(self, case_name: str, provider: str = "grok"):
+    def __init__(self, case_name: str, provider: str = "grok", research_provider: str = "none"):
         self.case_root = Path(f"LexClerk_Case_{case_name.replace(' ', '_')}")
         self.db_path = self.case_root / "metadata.db"
         self.ingest_watch = self.case_root / "ingest"
@@ -32,6 +33,11 @@ class LexClerk:
         self.provider = provider
         self.llm = get_llm(provider)
         print(f"✅ LLM initialized: {provider.upper()}")
+
+        # NEW: Switchable research backend
+        self.research_provider = research_provider
+        self.researcher = ResearchEngine(research_provider)
+        print(f"🔬 Research backend: {research_provider.upper() if research_provider != 'none' else 'DISABLED'}")
 
         self.setup_structure()
         self.setup_database()
@@ -70,6 +76,13 @@ class LexClerk:
         )''')
         conn.commit()
         conn.close()
+
+    def research(self, query: str):
+        """Real-time legal research using the chosen backend"""
+        print(f"🔍 Researching: {query}")
+        full_query = f"{query}. Focus on mortgage/loan disputes, RESPA, UDAAP, CA HBOR, Elder Financial Abuse, CFPB, DFPI, recent case law, statutes of limitations, and regulatory updates (2025-2026). Always include citations and dates."
+        result = self.researcher.research(full_query)
+        print("\n" + result)
 
     def extract_text(self, file_path: Path) -> str:
         text = ""
@@ -225,16 +238,18 @@ Document excerpt:
         conn.close()
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="LexClerk v1.1 — Powered by llm_router")
-    parser.add_argument("command", choices=["organize", "ingest", "status"])
-    parser.add_argument("--source", type=str, help="Source directory for organize")
-    parser.add_argument("--file", type=str, help="New file for ingest")
-    parser.add_argument("--case", default="TommyLoanDispute", help="Case name")
-    parser.add_argument("--provider", choices=["grok", "gemini", "local"], default="grok",
-                        help="LLM provider (grok = best quality)")
+    parser = argparse.ArgumentParser(description="LexClerk v1.1+ with switchable research")
+    parser.add_argument("command", choices=["organize", "ingest", "status", "research"])
+    parser.add_argument("--source", type=str)
+    parser.add_argument("--file", type=str)
+    parser.add_argument("--case", default="TommyLoanDispute")
+    parser.add_argument("--provider", choices=["grok", "gemini", "local"], default="grok")
+    parser.add_argument("--research-provider", choices=["none", "perplexica", "grok"], default="none",
+                        help="Research backend: perplexica (best citations) or grok (best reasoning)")
+    parser.add_argument("--query", type=str, help="Research query when using 'research' command")
     args = parser.parse_args()
 
-    clerk = LexClerk(args.case, provider=args.provider)
+    clerk = LexClerk(args.case, provider=args.provider, research_provider=args.research_provider)
 
     if args.command == "organize":
         source = Path(args.source) if args.source else Path(".")
@@ -244,3 +259,8 @@ if __name__ == "__main__":
             clerk.ingest(Path(args.file))
     elif args.command == "status":
         clerk.show_status()
+    elif args.command == "research":
+        if args.query:
+            clerk.research(args.query)
+        else:
+            print("❌ Use --query \"your legal question\" with the research command")
