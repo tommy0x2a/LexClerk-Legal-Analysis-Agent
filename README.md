@@ -60,16 +60,71 @@ LexClerk now has a **fully switchable research backend** that integrates seamles
 | **Grok tools** | Deep reasoning + quick lookups   | Good (DuckDuckGo results)           | None (uses `duckduckgo-search`) | Fastest, no extra server|
 | **None**      | Pure classification (v1.1 mode)  | N/A                                 | None                            | Zero overhead           |
 
-### Perplexica Installation (one-time)
-```bash
-git clone https://github.com/ItzCrazyKns/Perplexica.git
-cd Perplexica
-cp sample.config.toml config.toml
-# Edit config.toml (use your XAI/GEMINI keys + preferred models)
-npm install
-npm run dev
+### Real-Time Legal Research Setup (Windows 10/11)
+
+#### Recommended: Docker + One-Click Batch Files (2 minutes)
+
+1. Install **Docker Desktop** → https://www.docker.com/products/docker-desktop/
+2. Download these two files into your LexClerk folder:
+   - `start_perplexica.bat`
+   - `stop_perplexica.bat`
+
+**`start_perplexica.bat`** (double-click to start):
+```batch
+@echo off
+title LexClerk - Start Perplexica
+color 0a
+echo =============================================
+echo     Starting Perplexica for LexClerk v1.2
+echo     (Docker - One Click)
+echo =============================================
+echo.
+
+docker start perplexica >nul 2>&1
+
+if %errorlevel% neq 0 (
+    echo [First-time setup] Creating and starting Perplexica container...
+    docker run -d -p 3000:3000 -v perplexica-data:/home/perplexica/data --name perplexica itzcrazykns1337/perplexica:latest
+    echo ✅ New container created and started!
+) else (
+    echo ✅ Perplexica was already created and has been started.
+)
+
+echo.
+echo 🌐 Perplexica is now running at: http://localhost:3000
+echo First time? Open the link above and finish the quick setup (add your API keys).
+echo.
+pause
 ```
-→ Runs on `http://localhost:3000` (changeable in `research_engine.py`).
+
+**`stop_perplexica.bat`** (double-click to stop):
+```batch
+@echo off
+title LexClerk - Stop Perplexica
+color 0c
+echo =============================================
+echo     Stopping Perplexica
+echo =============================================
+echo.
+
+docker stop perplexica
+
+if %errorlevel% equ 0 (
+    echo ✅ Perplexica stopped successfully.
+) else (
+    echo No running Perplexica container found.
+)
+
+echo.
+pause
+```
+
+**Usage**:
+- Double-click `start_perplexica.bat` → Perplexica starts (downloads image first time)
+- Open browser → **http://localhost:3000** and complete the one-time setup
+- To stop → Double-click `stop_perplexica.bat`
+
+**Pro tip**: Keep `start_perplexica.bat` on your Desktop for instant access.
 
 ---
 
@@ -90,39 +145,10 @@ LexClerk_Case_YourCaseName/
 ├── metadata.db
 ├── lexclerk.py
 ├── research_engine.py
-└── llm_router.py
+├── llm_router.py
+├── start_perplexica.bat
+└── stop_perplexica.bat
 ```
-
----
-
-## 📋 Full Code
-
-### 1. `research_engine.py` (NEW FILE — copy exactly)
-```python
-"""
-research_engine.py — Switchable real-time legal research for LexClerk
-Perplexica = best citations | Grok = strongest reasoning + real-time search
-"""
-import requests
-from langchain_community.tools import DuckDuckGoSearchRun
-
-class ResearchEngine:
-    def __init__(self, provider: str = "none", perplexica_url: str = "http://localhost:3000"):
-        self.provider = provider.lower()
-        self.perplexica_url = perplexica_url.rstrip("/")
-        self.ddgs = DuckDuckGoSearchRun() if self.provider == "grok" else None
-
-    def research(self, query: str) -> str:
-        if self.provider == "none":
-            return "⚠️ Research disabled (use --research-provider grok or perplexica)"
-        if self.provider == "perplexica":
-            return self._perplexica(query)
-        if self.provider == "grok":
-            return self._grok(query)
-        return "❌ Unknown provider"
-
-    # ... (full _perplexica and _grok methods as shipped earlier)
----
 
 ## 🛠️ How to Run
 
@@ -193,10 +219,3 @@ Pull requests welcome! Especially welcome:
 ---
 *Last updated: March 2026 • LexClerk v1.2*
 ```
-
-**How to use this README**
-1. Replace your existing `README.md` with the content above.
-2. Add the new `research_engine.py` file to the repo.
-3. Commit & push — your project now fully documents the switchable research integration.
-
-Ready for v2 (auto-complaint drafting that uses this research engine)? Just say the word and I’ll ship it. 🚀
