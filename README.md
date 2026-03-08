@@ -122,17 +122,6 @@ class ResearchEngine:
         return "❌ Unknown provider"
 
     # ... (full _perplexica and _grok methods as shipped earlier)
-```
-
-### 2. Updated `lexclerk.py` (replace your old file)
-The full updated script (with `ResearchEngine` integration, new `--research-provider` flag, and `research` command) is available in the repository.  
-Key changes:
-- `__init__` now accepts `research_provider`
-- New `research()` method that prepends legal context and routes through the chosen backend
-- CLI now supports `research` command + `--research-provider` (default: `none`)
-
-*(Full 350+ line file with all original methods preserved + research integration is in the repo root.)*
-
 ---
 
 ## 🛠️ How to Run
