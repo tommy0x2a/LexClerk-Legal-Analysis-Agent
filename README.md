@@ -168,6 +168,18 @@ python lexclerk.py research --research-provider grok --query "recent California 
 
 # 4. Status
 python lexclerk.py status
+
+# 5. Full case analysis + merit brief
+python lexclerk.py analyze --provider grok --research-provider perplexica
+
+# 6. Generate CFPB complaint (uses your entire case database + live research)
+python lexclerk.py draft-complaint --agency CFPB
+
+# 7. Generate DFPI complaint
+python lexclerk.py draft-complaint --agency DFPI
+
+# 8. Professional acceptance letter to a consumer law firm
+python lexclerk.py draft-letter --firm "Smith Consumer Law Group"
 ```
 
 **Pro tips**
@@ -176,6 +188,14 @@ python lexclerk.py status
 - Add the research flag to any command — it only activates on the `research` command.
 
 ---
+
+All drafts are saved in LexClerk_Case_TommyLoanDispute/Archive/Drafts/ with timestamps.
+
+### How to Use
+1. Make sure Perplexica/Vane is running (`start_perplexica.bat`)
+2. Run any of the commands above.
+
+Your SQLite database now powers **iterative learning** — every draft references your highest-confidence evidence automatically.
 
 ## 📊 Example Research Output (Perplexica)
 
@@ -193,7 +213,6 @@ The CFPB issued updated guidance in February 2026 requiring servicers to...
 
 ## 🗺️ Roadmap
 
-- **v2.0** (next) — Auto complaint drafting (CFPB/DFPI personas) + merit brief generator that uses the research engine
 - **v3.0** — Timeline visualization + evidence export
 
 ---
