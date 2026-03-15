@@ -9,7 +9,7 @@ from llm_router import get_llm
 from research_engine import ResearchEngine
 
 class DraftEngine:
-    def __init__(self, case_name: str, provider: str = "grok", research_provider: str = "perplexica"):
+    def __init__(self, case_name: str, provider: str = "grok", research_provider: str = "vane"):
         self.case_root = Path(f"LexClerk_Case_{case_name.replace(' ', '_')}")
         self.db_path = self.case_root / "metadata.db"
         self.drafts_folder = self.case_root / "Archive" / "Drafts"
