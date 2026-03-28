@@ -253,7 +253,7 @@ if __name__ == "__main__":
     parser.add_argument("command", choices=["organize", "ingest", "status", "research", "draft-complaint", "draft-letter", "analyze"])
     parser.add_argument("--source", type=str)
     parser.add_argument("--file", type=str)
-    parser.add_argument("--case", default="TommyLoanDispute")
+    parser.add_argument("--case", default="LoanDispute")
     parser.add_argument("--provider", choices=["grok", "gemini", "local"], default="grok")
     parser.add_argument("--research-provider", choices=["none", "vane", "perplexica", "grok"], default="vane",
                         help="Research backend: vane (recommended, best citations), grok (best reasoning), none (disable research)")
