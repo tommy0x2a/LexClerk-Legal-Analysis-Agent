@@ -160,7 +160,7 @@ LexClerk_Case_YourCaseName/
 
 ```bash
 # 1. Classic organization (no research overhead)
-python lexclerk.py organize --source "/path/to/your/unorganized/documents" --case "TommyLoanDispute" --provider grok --research-provider none
+python lexclerk.py organize --source "/path/to/your/unorganized/documents" --case "LoanDispute" --provider grok --research-provider none
 
 # 2. Delta ingest
 python lexclerk.py ingest --file "new_servicer_letter.pdf" --research-provider none
